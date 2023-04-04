@@ -3,15 +3,14 @@ import { useContext } from 'react'
 import { TransactionContext } from '../context/TransactionContext'
 
 const Main = () => {
-  const { name } = useContext(TransactionContext);
-  console.log(name);
+  const { connectWallet } = useContext(TransactionContext);
   return (
     <div className="mainContainer">
       {/* left */}
       <div className="cryptContainer">
         <h1 className="title">Crypt Card</h1>
         <button className="button">
-          <p className="buttonText">ウォレット連携</p>
+          <p className="buttonText" onClick={connectWallet}>ウォレット連携</p>
         </button>
       </div>
       {/* right */}
