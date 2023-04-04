@@ -1,5 +1,8 @@
-import { ethers } from "ethers"
+import { ethers } from "ethers";
+import { createContext } from "react";
 import { contractABI, contractAddress } from "../utils/connect";
+
+export const TransactionContext = createContext();
 
 // スマートコントラクトを取得
 // 参考資料：https://docs.ethers.org/v5/getting-started/
@@ -15,3 +18,9 @@ const getSmartContract = () => {
 
   return transactionContract;
 };
+
+export const TransactionProvider = ({children}) => {
+  return <TransactionContext.Provider value={{name: "ukohank517"}}>
+    {children}
+  </TransactionContext.Provider>
+}

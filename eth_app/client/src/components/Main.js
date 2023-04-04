@@ -1,6 +1,10 @@
 import React from 'react'
+import { useContext } from 'react'
+import { TransactionContext } from '../context/TransactionContext'
 
 const Main = () => {
+  const { name } = useContext(TransactionContext);
+  console.log(name);
   return (
     <div className="mainContainer">
       {/* left */}
