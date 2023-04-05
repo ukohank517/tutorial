@@ -12,7 +12,7 @@ const getSmartContract = () => {
   // 署名　
   const signer = provider.getSigner()
 
-  const transactionContract = new ethers.Contract(contractAddress, contractABI, provider);
+  const transactionContract = new ethers.Contract(contractAddress, contractABI, signer);
 
   console.log(provider, signer, transactionContract);
 
@@ -21,6 +21,18 @@ const getSmartContract = () => {
 
 export const TransactionProvider = ({children}) => {
   const [currentAccount, setCurrentAccount] = useState("");
+  const [inputFormData, setInputFormData] = useState({
+    addressTo: "",
+    amount: "",
+  })
+
+  const handleChange = (e, name) => {
+    setInputFormData((prevInputFormData) => ({
+      ...prevInputFormData,
+      // [name]: Main.jsのhtmlに、inputの名前(addressToとamountがある)
+      [name]: e.target.value,
+    }));
+  };
 
 
   // メタマスクウォレットと連携しているかどうかを確認
@@ -45,12 +57,42 @@ export const TransactionProvider = ({children}) => {
     setCurrentAccount(accounts[0]);
   }
 
+  // 実際に通貨のやり取りをする
+  const sendTransaction = async () => {
+    if(!window.ethereum) return alert("please install metamask")
+    console.log("sendTransaction");
+
+    const transactionContract = getSmartContract();
+    const parsedAmount = ethers.utils.parseEther(inputFormData.amount);
+
+    // ref: https://docs.metamask.io/guide/sending-transactions.html#example
+    const transactionParameters = {
+      gas: '0x5208', // 21000 GWEI customizable by user during MetaMask confirmation.
+      to: inputFormData.addressTo, // Required except during contract publications.
+      from: currentAccount, // must match user's active address.
+      value: parsedAmount._hex, // Only required to send ether to the recipient from the initiating external account.
+    };
+
+    await window.ethereum.request({
+      method: "eth_sendTransaction",
+      params: [transactionParameters],
+    });
+
+    const transactionHash = await transactionContract.addToBlockChain(
+      inputFormData.addressTo,
+      parsedAmount
+    );
+    console.log(`loading... ${transactionHash.hash}`);
+    await transactionHash.wait();
+    console.log(`送金に成功! ${transactionHash.hash}`);
+  };
+
   useEffect(() => {
     checkMetamaskWalletConnected();
   }, []);
 
   // globalになる
-  return <TransactionContext.Provider value={{ connectWallet }}>
+  return <TransactionContext.Provider value={{ connectWallet, sendTransaction, handleChange, inputFormData }}>
     {children}
   </TransactionContext.Provider>
 }

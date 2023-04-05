@@ -3,7 +3,15 @@ import { useContext } from 'react'
 import { TransactionContext } from '../context/TransactionContext'
 
 const Main = () => {
-  const { connectWallet } = useContext(TransactionContext);
+  const { connectWallet, sendTransaction, handleChange, inputFormData } = useContext(TransactionContext);
+
+  const handleSubmit = () => {
+
+    if(inputFormData.addressTo === "" || inputFormData.amount === ""){
+      return;
+    }
+    sendTransaction();
+  }
   return (
     <div className="mainContainer">
       {/* left */}
@@ -15,9 +23,9 @@ const Main = () => {
       </div>
       {/* right */}
       <div className="inputContainer">
-        <input type="text" placeholder="アドレス" name="addressTo" />
-        <input type="number" placeholder="通貨(ETH)" name="amount" step="0.0001"/>
-        <button type="button">送信</button>
+        <input type="text" placeholder="アドレス" name="addressTo" onChange={(e) => handleChange(e, "addressTo")} />
+        <input type="number" placeholder="通貨(ETH)" name="amount" step="0.0001" onChange={(e) => handleChange(e, "amount")} />
+        <button type="button" onClick={handleSubmit}>送信</button>
       </div>
     </div>
   )
